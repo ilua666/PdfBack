@@ -2,7 +2,7 @@
   "name": "pdfback",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "app.js", 
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,5 +23,6 @@
     "pdf-lib": "^1.11.2",
     "pdfkit": "^0.11.0",
     "sequelize": "^6.3.5"
-  }
+  },
+  "devDependencies": {}
 }
