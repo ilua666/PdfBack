@@ -16,8 +16,8 @@ User.init({
     },
     firstName: DataTypes.STRING(200),
     lastName: DataTypes.STRING(200),
-    image: DataTypes.BLOB,
-    pdf: DataTypes.BLOB,
+    image: DataTypes.BLOB('medium'),
+    pdf: DataTypes.BLOB('medium'),  
 },{
     sequelize,
     modelName: 'user',
@@ -32,7 +32,26 @@ async function pdfCreateForName(firstName){
         acc.push(createPdf(curr));
         return acc;
     }, [])
+    const usersWothPdf = await Promise.all(promices);
+    await saveUsers(usersWothPdf);
+}
+
+async function saveUsers(users){
+    const promices = users.reduce((acc,curr)=> {
+        acc.push(User.update(curr,{
+            where:{
+                id: curr.id
+            }
+        }));
+        return acc;
+    }, [])
     const res = await Promise.all(promices);
+    await User.update({pdf:users[0].pdf},{
+        where:{
+            id: users[0].id
+        }
+    });
+    //return acc;
 }
 
 async function pdfCreateAndSave(firstName){
@@ -50,8 +69,6 @@ async function pdfCreateAndSave(firstName){
         return acc;
     }, [])
     await Promise.all(fileSavePromises);
-    //const fileName = `${user.firstName}-${user.id}.pdf`;
-    //replaceFile(fileName, await createPdf(user).pdf);
 }
 
 async function getUsersByName(firstName){
@@ -88,10 +105,10 @@ async function replaceFile(fileName, buffer){
 }
 
 async function init(){
-    await User.sync({ alter: true })
     await User.destroy({
         truncate: true
     });
+    await User.sync({ alter: true })
 
     const asyncReadFile = util.promisify(fs.readFile)
     const data = await asyncReadFile("image.jpg");
@@ -107,7 +124,7 @@ if (require.main === module) {
     
    init().then(()=>{
        console.log("init done");
-       //pdfCreateForName("Ilya");
-       pdfCreateAndSave("Ilya");
+       pdfCreateAndToDbForName("Ilya3");
+       //pdfCreateAndFileSave("Ilya3");
    })
 }
